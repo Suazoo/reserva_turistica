@@ -1,0 +1,44 @@
+bin/
+obj/
+*.user
+appsettings.Development.json
+appsettings.json
+
+# Build results
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+.vs/
+
+# IIS Express
+.vscode/
+*.psess
+*.vsp
+*.vspscc
+*_i.c
+*_p.c
+*.cachefile
+*.dbmdl
+
+# Logs
+*.log
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Libman
+libman.json
+wwwroot/lib/
+
+# Secrets
+appsettings.Development.json
+
+# Others
+*.sqlite

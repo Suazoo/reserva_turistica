@@ -1,0 +1,6 @@
+@reserva_turisticas_HostAddress = http://localhost:5230
+
+GET {{reserva_turisticas_HostAddress}}/api/ClientesPrueba/
+Accept: application/json
+
+###
