@@ -1,0 +1,8 @@
+services:
+  api:
+    image: "suaz0/reserva_turistica"
+    ports:
+      - "3000:8080"
+    
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development

@@ -44,12 +44,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// CORS - CONFIGURACIÓN MEJORADA PARA VITE + REACT
+// CORS - CONFIGURACIï¿½N MEJORADA PARA VITE + REACT
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        // Orígenes permitidos
+        // Orï¿½genes permitidos
         var allowedOrigins = builder.Configuration
             .GetSection("AllowedOrigins")
             .Get<string[]>()
@@ -62,7 +62,7 @@ builder.Services.AddCors(options =>
               .SetIsOriginAllowedToAllowWildcardSubdomains(); // Para subdominios
     });
 
-    // Política más permisiva solo para desarrollo
+    // Polï¿½tica mï¿½s permisiva solo para desarrollo
     options.AddPolicy("AllowAll", policy =>
     {
         policy.AllowAnyOrigin()
@@ -78,12 +78,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    // En desarrollo, usa la política más permisiva
+    // En desarrollo, usa la polï¿½tica mï¿½s permisiva
     app.UseCors("AllowFrontend");
 }
 else
 {
-    // En producción, usa solo orígenes específicos
+    // En producciï¿½n, usa solo orï¿½genes especï¿½ficos
     app.UseCors("AllowFrontend");
 }
 
