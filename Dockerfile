@@ -1,15 +1,19 @@
+
+# Etapa 1: Build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /App
+WORKDIR /src
 
-# Copy everything
-COPY . ./
-# Restore as distinct layers
+# Copiar solo el csproj primero (mejora cache)
+COPY *.csproj ./
 RUN dotnet restore
-# Build and publish a release
-RUN dotnet publish -o out
 
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
-WORKDIR /App
-COPY --from=build /App/out .
+# Ahora copia el resto del código
+COPY . .
+RUN dotnet publish -c Release -o /app/out
+
+# Etapa 2: Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/out .
+
 ENTRYPOINT ["dotnet", "reserva_turisticas.dll"]
