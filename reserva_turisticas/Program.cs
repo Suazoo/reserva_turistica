@@ -74,11 +74,11 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || Environment.GetEnvironmentVariable("RENDER") == "true")
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    // En desarrollo, usa la pol�tica m�s permisiva
+
     app.UseCors("AllowFrontend");
 }
 else
