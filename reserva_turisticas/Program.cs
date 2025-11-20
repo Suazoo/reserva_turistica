@@ -44,12 +44,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// CORS - CONFIGURACI�N MEJORADA PARA VITE + REACT
+// CORS - CONFIGURACIÓN MEJORADA PARA VITE + REACT
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        // Or�genes permitidos
+        // Orígenes permitidos
         var allowedOrigins = builder.Configuration
             .GetSection("AllowedOrigins")
             .Get<string[]>()
@@ -62,7 +62,7 @@ builder.Services.AddCors(options =>
               .SetIsOriginAllowedToAllowWildcardSubdomains(); // Para subdominios
     });
 
-    // Pol�tica m�s permisiva solo para desarrollo
+    // Política más permisiva solo para desarrollo
     options.AddPolicy("AllowAll", policy =>
     {
         policy.AllowAnyOrigin()
@@ -73,21 +73,27 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+// --- PUERTO DINÁMICO PARA RENDER ---
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
+{
+    app.Urls.Add($"http://*:{port}");
+}
+
+// --- SWAGGER EN RENDER & DEV ---
 if (app.Environment.IsDevelopment() || Environment.GetEnvironmentVariable("RENDER") == "true")
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-
     app.UseCors("AllowFrontend");
 }
 else
 {
-    // En producci�n, usa solo or�genes espec�ficos
     app.UseCors("AllowFrontend");
 }
 
-app.UseHttpsRedirection();
+// --- IMPORTANTE: NO uses HTTPS Redirection en Render ---
+// app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
