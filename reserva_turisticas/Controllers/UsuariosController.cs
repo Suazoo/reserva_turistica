@@ -12,47 +12,47 @@ namespace reserva_turisticas.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ClientesPruebaController : ControllerBase
+    public class UsuariosController : ControllerBase
     {
         private readonly ReservaTuristicaContext _context;
 
-        public ClientesPruebaController(ReservaTuristicaContext context)
+        public UsuariosController(ReservaTuristicaContext context)
         {
             _context = context;
         }
 
-        // GET: api/ClientesPrueba
+        // GET: api/Usuarios
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Cliente>>> GetClientes()
+        public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
         {
-            return await _context.Clientes.ToListAsync();
+            return await _context.Usuarios.ToListAsync();
         }
 
-        // GET: api/ClientesPrueba/5
+        // GET: api/Usuarios/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Cliente>> GetCliente(int id)
+        public async Task<ActionResult<Usuario>> GetUsuario(int id)
         {
-            var cliente = await _context.Clientes.FindAsync(id);
+            var usuario = await _context.Usuarios.FindAsync(id);
 
-            if (cliente == null)
+            if (usuario == null)
             {
                 return NotFound();
             }
 
-            return cliente; 
+            return usuario;
         }
 
-        // PUT: api/ClientesPrueba/5
+        // PUT: api/Usuarios/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCliente(int id, Cliente cliente)
+        public async Task<IActionResult> PutUsuario(int id, Usuario usuario)
         {
-            if (id != cliente.Id)
+            if (id != usuario.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(cliente).State = EntityState.Modified;
+            _context.Entry(usuario).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace reserva_turisticas.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ClienteExists(id))
+                if (!UsuarioExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +73,36 @@ namespace reserva_turisticas.Controllers
             return NoContent();
         }
 
-        // POST: api/ClientesPrueba
+        // POST: api/Usuarios
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Cliente>> PostCliente(Cliente cliente)
+        public async Task<ActionResult<Usuario>> PostUsuario(Usuario usuario)
         {
-            _context.Clientes.Add(cliente);
+            _context.Usuarios.Add(usuario);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCliente", new { id = cliente.Id }, cliente);
+            return CreatedAtAction("GetUsuario", new { id = usuario.Id }, usuario);
         }
 
-        // DELETE: api/ClientesPrueba/5
+        // DELETE: api/Usuarios/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCliente(int id)
+        public async Task<IActionResult> DeleteUsuario(int id)
         {
-            var cliente = await _context.Clientes.FindAsync(id);
-            if (cliente == null)
+            var usuario = await _context.Usuarios.FindAsync(id);
+            if (usuario == null)
             {
                 return NotFound();
             }
 
-            _context.Clientes.Remove(cliente);
+            _context.Usuarios.Remove(usuario);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool ClienteExists(int id)
+        private bool UsuarioExists(int id)
         {
-            return _context.Clientes.Any(e => e.Id == id);
+            return _context.Usuarios.Any(e => e.Id == id);
         }
     }
 }

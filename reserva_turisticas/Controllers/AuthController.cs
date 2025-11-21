@@ -131,5 +131,15 @@ namespace reserva_turisticas.Controllers
             var existe = _authService.ExisteDNI(dni);
             return Ok(new { existe });
         }
+
+
+
+
+
+
+
+
+        
+
     }
 }
