@@ -19,7 +19,7 @@ public partial class Reserva
 
     public int MonedaId { get; set; }
     public int ClienteId { get; set; } // Foreign key to Cliente
-    public virtual ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
+    
 
     public string? Politicas { get; set; }
 
