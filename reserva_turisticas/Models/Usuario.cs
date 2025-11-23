@@ -14,7 +14,7 @@ public partial class Usuario
     public string? Estado { get; set; }
 
     public int PersonaId { get; set; }
-    public string? LoginType { get; set; }
+    
 
     public virtual Persona Persona { get; set; } = null!;
 }
