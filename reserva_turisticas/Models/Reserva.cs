@@ -18,7 +18,8 @@ public partial class Reserva
     public int ContratoId { get; set; }
 
     public int MonedaId { get; set; }
-    public int ClienteId { get; set; } // Foreign key to Cliente
+    public int ClienteId { get; set; }
+    public virtual Cliente Cliente { get; set; } = null!;
     
 
     public string? Politicas { get; set; }

@@ -555,6 +555,7 @@ public partial class ReservaTuristicaContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CodigoReserva).HasColumnName("Codigo_reserva");
             entity.Property(e => e.ContratoId).HasColumnName("Contrato_id");
+            entity.Property(e => e.ClienteId).HasColumnName("Cliente_id");
             entity.Property(e => e.Estado)
                 .HasMaxLength(1)
                 .IsUnicode(false);
@@ -569,6 +570,11 @@ public partial class ReservaTuristicaContext : DbContext
                 .HasForeignKey(d => d.ContratoId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Reserva_Contrato");
+
+            entity.HasOne(d => d.Cliente).WithMany() // Cliente no define colección Reservas en el modelo actual
+                .HasForeignKey(d => d.ClienteId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Reserva_Cliente");
 
             entity.HasOne(d => d.Moneda).WithMany(p => p.Reservas)
                 .HasForeignKey(d => d.MonedaId)

@@ -18,4 +18,5 @@ public partial class Cliente
     public virtual CategoriaCliente CategoriaCliente { get; set; } = null!;
 
     public virtual Persona Persona { get; set; } = null!;
+    public virtual ICollection<Reserva> Reservas { get; set; } = new List<Reserva>();
 }
