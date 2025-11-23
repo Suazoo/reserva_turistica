@@ -571,9 +571,9 @@ public partial class ReservaTuristicaContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Reserva_Contrato");
 
-            entity.HasOne(d => d.Cliente).WithMany() // Cliente no define colección Reservas en el modelo actual
+            entity.HasOne(d => d.Cliente).WithMany(p => p.Reservas) // Cliente no define colección Reservas en el modelo actual
                 .HasForeignKey(d => d.ClienteId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("FK_Reserva_Cliente");
 
             entity.HasOne(d => d.Moneda).WithMany(p => p.Reservas)
