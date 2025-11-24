@@ -104,5 +104,39 @@ namespace reserva_turisticas.Controllers
         {
             return _context.Reservas.Any(e => e.Id == id);
         }
+
+
+        [Route("api/Servicio-Cliente")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<object>>> GetReservasServicioCliente()
+        {
+            var reservas = await _context.Reservas
+                .Include(r => r.Cliente)
+                    .ThenInclude(c => c.Persona)    // Nombre del cliente
+                .Include(r => r.ReservaServicios)
+                    .ThenInclude(rs => rs.Servicio) // Nombre del servicio
+                .Select(r => new
+                {
+                    id = r.Id,
+
+                    // Nombre completo del cliente
+                    cliente =
+                        (r.Cliente.Persona.PrimerNombre + " " +
+                        r.Cliente.Persona.PrimerApellido).Trim(),
+
+                    // Nombre del servicio
+                    servicio = r.ReservaServicios
+                                .Select(x => x.Servicio.Nombre)
+                                .FirstOrDefault() ?? "—",
+
+                    estado = r.Estado,
+                    total = r.Total
+                })
+                .ToListAsync();
+
+            return Ok(reservas);
+        }
+
+
     }
 }
