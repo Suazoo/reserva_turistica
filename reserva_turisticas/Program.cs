@@ -4,6 +4,8 @@ using Microsoft.IdentityModel.Tokens;
 using reserva_turisticas.Data;
 using reserva_turisticas.Services;
 using System.Text;
+using System.Data;
+using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+builder.Services.AddScoped<IDbConnection>(_ =>
+{
+    var cs = builder.Configuration.GetConnectionString("DefaultConnection");
+    return new SqlConnection(cs);
+});
 
 // Database Context
 builder.Services.AddDbContext<ReservaTuristicaContext>(options =>
