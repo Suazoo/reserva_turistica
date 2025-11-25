@@ -290,6 +290,7 @@ public partial class ReservaTuristicaContext : DbContext
             entity.Property(e => e.Correo)
                 .HasMaxLength(45)
                 .IsUnicode(false);
+            entity.Property(e => e.Precio).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.IdCiudad).HasColumnName("idCiudad");
             entity.Property(e => e.IdDepartamento).HasColumnName("idDepartamento");
             entity.Property(e => e.IdPais).HasColumnName("idPais");
@@ -556,6 +557,7 @@ public partial class ReservaTuristicaContext : DbContext
             entity.Property(e => e.CodigoReserva).HasColumnName("Codigo_reserva");
             entity.Property(e => e.ContratoId).HasColumnName("Contrato_id");
             entity.Property(e => e.ClienteId).HasColumnName("Cliente_id");
+            entity.Property(e => e.HotelId).HasColumnName("Hotel_id");
             entity.Property(e => e.Estado)
                 .HasMaxLength(1)
                 .IsUnicode(false);
@@ -575,6 +577,11 @@ public partial class ReservaTuristicaContext : DbContext
                 .HasForeignKey(d => d.ClienteId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("FK_Reserva_Cliente");
+
+            entity.HasOne(d => d.Hotel).WithMany(p => p.Reservas) 
+                .HasForeignKey(d => d.HotelId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_Reserva_Hotel");
 
             entity.HasOne(d => d.Moneda).WithMany(p => p.Reservas)
                 .HasForeignKey(d => d.MonedaId)

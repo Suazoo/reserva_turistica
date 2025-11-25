@@ -208,5 +208,163 @@ namespace reserva_turisticas.Controllers
             return Ok(datos);
         }
 
+
+
+        
+
+        // ------------------------------------------------------------
+        // 6) SP: dbo.SP_ACTUALIZAR_RESERVA
+        // PUT: api/Reservas/actualizar-reserva
+        // ------------------------------------------------------------
+        [HttpPut("actualizar-reserva")]
+        public async Task<IActionResult> ActualizarReserva([FromBody] ActualizarReservaDto dto)
+        {
+            var parametros = new DynamicParameters();
+            parametros.Add("@pnReservaID",  dto.ReservaID);
+            parametros.Add("@pnClienteID",  dto.ClienteID);
+            parametros.Add("@pnContratoID", dto.ContratoID);
+            parametros.Add("@pnMonedaID",  dto.MonedaID);
+            parametros.Add("@pcEstado",    dto.Estado);
+            parametros.Add("@pcPoliticas", dto.Politicas);
+            parametros.Add("@pnTotalNuevo",dto.TotalNuevo);
+
+            parametros.Add("@pnTipoMensaje", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parametros.Add("@pcMensaje",     dbType: DbType.String, size: 300, direction: ParameterDirection.Output);
+
+            await _db.ExecuteAsync(
+                "dbo.SP_ACTUALIZAR_RESERVA",
+                parametros,
+                commandType: CommandType.StoredProcedure
+            );
+
+            var tipoMensaje = parametros.Get<int>("@pnTipoMensaje");
+            var mensaje     = parametros.Get<string>("@pcMensaje");
+
+            if (tipoMensaje != 0)
+            {
+                // Error desde el SP
+                return BadRequest(new { tipoMensaje, mensaje });
+            }
+
+            return Ok(new { tipoMensaje, mensaje });
+        }
+
+
+
+
+
+        // ------------------------------------------------------------
+        // 7) SP: dbo.SP_CREAR_RESERVACION
+        // POST: api/Reservas/crear-reservacion
+        // ------------------------------------------------------------
+        [HttpPost("crear-reservacion")]
+        public async Task<IActionResult> CrearReservacion([FromBody] CrearReservacionDto dto)
+        {
+            var parametros = new DynamicParameters();
+            parametros.Add("@pnClienteID",  dto.ClienteID);
+            parametros.Add("@pnServicioID", dto.ServicioID);
+            parametros.Add("@pnTourID",     dto.TourID);
+            parametros.Add("@pnHotelID",    dto.HotelID);
+            parametros.Add("@pnPaqueteID",  dto.PaqueteID);
+            parametros.Add("@pFechaReserva",dto.FechaReserva.Date);
+            parametros.Add("@pNotas",       dto.Notas);
+
+            // Outputs
+            parametros.Add("@pcNombreCliente", dbType: DbType.String, size: 200, direction: ParameterDirection.Output);
+            parametros.Add("@pnPrecioServicio", dbType: DbType.Decimal, direction: ParameterDirection.Output);
+            parametros.Add("@pnPrecioTour",     dbType: DbType.Decimal, direction: ParameterDirection.Output);
+            parametros.Add("@pnPrecioHotel",    dbType: DbType.Decimal, direction: ParameterDirection.Output);
+            parametros.Add("@pnPrecioPaquete",  dbType: DbType.Decimal, direction: ParameterDirection.Output);
+            parametros.Add("@pnSubtotal",       dbType: DbType.Decimal, direction: ParameterDirection.Output);
+            parametros.Add("@pnImpuesto",       dbType: DbType.Decimal, direction: ParameterDirection.Output);
+            parametros.Add("@pnTotal",          dbType: DbType.Decimal, direction: ParameterDirection.Output);
+            parametros.Add("@pnReservaID",      dbType: DbType.Int32,   direction: ParameterDirection.Output);
+            parametros.Add("@pnTipoMensaje",    dbType: DbType.Int32,   direction: ParameterDirection.Output);
+            parametros.Add("@pcMensaje",        dbType: DbType.String, size: 500, direction: ParameterDirection.Output);
+
+            await _db.ExecuteAsync(
+                "dbo.SP_CREAR_RESERVACION",
+                parametros,
+                commandType: CommandType.StoredProcedure
+            );
+
+            var resultado = new CrearReservacionResultadoDto
+            {
+                NombreCliente  = parametros.Get<string>("@pcNombreCliente") ?? string.Empty,
+                PrecioServicio = parametros.Get<decimal?>("@pnPrecioServicio") ?? 0,
+                PrecioTour     = parametros.Get<decimal?>("@pnPrecioTour") ?? 0,
+                PrecioHotel    = parametros.Get<decimal?>("@pnPrecioHotel") ?? 0,
+                PrecioPaquete  = parametros.Get<decimal?>("@pnPrecioPaquete") ?? 0,
+                Subtotal       = parametros.Get<decimal?>("@pnSubtotal") ?? 0,
+                Impuesto       = parametros.Get<decimal?>("@pnImpuesto") ?? 0,
+                Total          = parametros.Get<decimal?>("@pnTotal") ?? 0,
+                ReservaID      = parametros.Get<int>("@pnReservaID"),
+                TipoMensaje    = parametros.Get<int>("@pnTipoMensaje"),
+                Mensaje        = parametros.Get<string>("@pcMensaje") ?? string.Empty
+            };
+
+            if (resultado.TipoMensaje != 0)
+            {
+                return BadRequest(resultado);
+            }
+
+            return Ok(resultado);
+        }
+
+
+        // ------------------------------------------------------------
+        // 8) SP: dbo.SP_ELIMINAR_RESERVA_COMPLETA
+        // DELETE: api/Reservas/eliminar-reserva-completa/{id}
+        // ------------------------------------------------------------
+        [HttpDelete("eliminar-reserva-completa/{id}")]
+        public async Task<IActionResult> EliminarReservaCompleta(int id)
+        {
+            var parametros = new DynamicParameters();
+            parametros.Add("@pnReservaID", id);
+            parametros.Add("@pnTipoMensaje", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parametros.Add("@pcMensaje", dbType: DbType.String, size: 400, direction: ParameterDirection.Output);
+
+            await _db.ExecuteAsync(
+                "dbo.SP_ELIMINAR_RESERVA_COMPLETA",
+                parametros,
+                commandType: CommandType.StoredProcedure
+            );
+
+            var tipoMensaje = parametros.Get<int>("@pnTipoMensaje");
+            var mensaje = parametros.Get<string>("@pcMensaje") ?? string.Empty;
+
+            if (tipoMensaje != 0)
+            {
+                return BadRequest(new { tipoMensaje, mensaje });
+            }
+
+            return Ok(new { tipoMensaje, mensaje });
+        }
+
+        // ------------------------------------------------------------
+        // 9) SP: dbo.SP_REPORTE_RESERVAS
+        // POST: api/Reservas/reporte-reservas
+        // Body: { "fechaInicio": "...", "fechaFin": "...", "clienteID": 1 }
+        // ------------------------------------------------------------
+        [HttpPost("reporte-reservas")]
+        public async Task<ActionResult<IEnumerable<ReporteReservasDto>>> GetReporteReservas(
+            [FromBody] ReporteReservasFiltroDto filtro)
+        {
+            var parametros = new DynamicParameters();
+            parametros.Add("@pFechaInicio", filtro.FechaInicio);
+            parametros.Add("@pFechaFin", filtro.FechaFin);
+            parametros.Add("@pClienteID", filtro.ClienteID);
+
+            var datos = await _db.QueryAsync<ReporteReservasDto>(
+                "dbo.SP_REPORTE_RESERVAS",
+                parametros,
+                commandType: CommandType.StoredProcedure
+            );
+
+            return Ok(datos);
+        }
+
+        
+
     }
 }

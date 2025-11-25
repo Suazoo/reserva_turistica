@@ -7,6 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using reserva_turisticas.Data;
 using reserva_turisticas.Models;
+using System.Data;
+using Dapper;
+using reserva_turisticas.Dtos;
+
 
 namespace reserva_turisticas.Controllers
 {
@@ -15,10 +19,12 @@ namespace reserva_turisticas.Controllers
     public class FacturasController : ControllerBase
     {
         private readonly ReservaTuristicaContext _context;
+        private readonly IDbConnection _db;
 
-        public FacturasController(ReservaTuristicaContext context)
+        public FacturasController(ReservaTuristicaContext context, IDbConnection db)
         {
             _context = context;
+            _db = db;
         }
 
         // GET: api/Facturas
@@ -104,5 +110,112 @@ namespace reserva_turisticas.Controllers
         {
             return _context.Facturas.Any(e => e.Id == id);
         }
+
+        // ------------------------------------------------------------
+        // SP: dbo.SP_GENERAR_FACTURA
+        // POST: api/Facturas/generar
+        // Body: { "reservaID": 1, "monedaID": 1 }
+        // ------------------------------------------------------------
+        [HttpPost("generar")]
+        public async Task<IActionResult> GenerarFactura([FromBody] GenerarFacturaDto dto)
+        {
+            var parametros = new DynamicParameters();
+            parametros.Add("@pnReservaID", dto.ReservaID);
+            parametros.Add("@pnMonedaID", dto.MonedaID);
+
+            parametros.Add("@pnFacturaID", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parametros.Add("@pnTipoMensaje", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parametros.Add("@pcMensaje", dbType: DbType.String, size: 400, direction: ParameterDirection.Output);
+
+            await _db.ExecuteAsync(
+                "dbo.SP_GENERAR_FACTURA",
+                parametros,
+                commandType: CommandType.StoredProcedure
+            );
+
+            var tipoMensaje = parametros.Get<int>("@pnTipoMensaje");
+            var mensaje = parametros.Get<string>("@pcMensaje") ?? string.Empty;
+            var facturaId = parametros.Get<int>("@pnFacturaID");
+
+            if (tipoMensaje != 0)
+            {
+                // Hubo error (por ejemplo, reserva no existe)
+                return BadRequest(new { tipoMensaje, mensaje });
+            }
+
+            // Opcional: devolver también la factura creada
+            var factura = await _context.Facturas
+                .FirstOrDefaultAsync(f => f.Id == facturaId);
+
+            return Ok(new
+            {
+                tipoMensaje,
+                mensaje,
+                facturaId,
+                factura
+            });
+        }
+
+        // ------------------------------------------------------------
+        // SP: dbo.SP_OBTENER_FACTURA_COMPLETA
+        // GET: api/Facturas/obtener-completa/{id}
+        // ------------------------------------------------------------
+        [HttpGet("obtener-completa/{id}")]
+        public async Task<ActionResult<FacturaCompletaDto>> ObtenerFacturaCompleta(int id)
+        {
+            var parametros = new DynamicParameters();
+            parametros.Add("@pnFacturaID", id);
+
+            using var multi = await _db.QueryMultipleAsync(
+                "dbo.SP_OBTENER_FACTURA_COMPLETA",
+                parametros,
+                commandType: CommandType.StoredProcedure
+            );
+
+            // 1) Datos generales
+            var datosGenerales = await multi.ReadFirstOrDefaultAsync<FacturaCompletaDto>();
+            if (datosGenerales == null)
+            {
+                return NotFound(new { mensaje = "Factura no encontrada o sin datos." });
+            }
+
+            // 2) Servicios
+            var servicios = (await multi.ReadAsync<FacturaServicioDto>()).ToList();
+            // 3) Tours
+            var tours = (await multi.ReadAsync<FacturaTourDto>()).ToList();
+            // 4) Paquetes
+            var paquetes = (await multi.ReadAsync<FacturaPaqueteDto>()).ToList();
+
+            datosGenerales.Servicios = servicios;
+            datosGenerales.Tours = tours;
+            datosGenerales.Paquetes = paquetes;
+
+            return Ok(datosGenerales);
+        }
+
+        // ------------------------------------------------------------
+        // SP: dbo.SP_REPORTE_FACTURAS
+        // POST: api/Facturas/reporte-facturas
+        // Body: { "fechaInicio": "...", "fechaFin": "...", "clienteID": 1 }
+        // ------------------------------------------------------------
+        [HttpPost("reporte-facturas")]
+        public async Task<ActionResult<IEnumerable<ReporteFacturasDto>>> GetReporteFacturas(
+            [FromBody] ReporteFacturasFiltroDto filtro)
+        {
+            var parametros = new DynamicParameters();
+            parametros.Add("@pFechaInicio", filtro.FechaInicio);
+            parametros.Add("@pFechaFin", filtro.FechaFin);
+            parametros.Add("@pClienteID", filtro.ClienteID);
+
+            var datos = await _db.QueryAsync<ReporteFacturasDto>(
+                "dbo.SP_REPORTE_FACTURAS",
+                parametros,
+                commandType: CommandType.StoredProcedure
+            );
+
+            return Ok(datos);
+        }
+
+        
     }
 }

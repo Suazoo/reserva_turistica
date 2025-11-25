@@ -28,8 +28,10 @@ public partial class Hotel
     public int IdCiudad { get; set; }
 
     public string? ReferenciaDireccion { get; set; }
+    public decimal? Precio{set; get;} // Precio por noche
 
     public virtual ICollection<Habitacion> Habitacions { get; set; } = new List<Habitacion>();
+    public virtual ICollection<Reserva> Reservas { get; set; } = new List<Reserva>();
 
     public virtual Lugar IdCiudadNavigation { get; set; } = null!;
 

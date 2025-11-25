@@ -20,6 +20,8 @@ public partial class Reserva
     public int MonedaId { get; set; }
     public int ClienteId { get; set; }
     public virtual Cliente Cliente { get; set; } = null!;
+    public int HotelId { get; set; }
+    public virtual Hotel Hotel { get; set; } = null!;
     
 
     public string? Politicas { get; set; }
