@@ -192,5 +192,21 @@ namespace reserva_turisticas.Controllers
             var datos = await _db.QueryAsync<ReservasListadoDto>(sql);
             return Ok(datos);
         }
+
+
+        // ------------------------------------------------------------
+        // 5) Vista: dbo.VW_Dashboard_Resumen
+        // GET: api/Reservas/vista-dashboard-resumen
+        // ------------------------------------------------------------
+        [HttpGet("vista-dashboard-resumen")]
+        public async Task<ActionResult<IEnumerable<DashboardResumenDto>>> GetVistaDashboardResumen()
+        {
+            const string sql = @"SELECT Tipo, Valor1, Valor2, Valor3
+                                 FROM dbo.VW_Dashboard_Resumen";
+
+            var datos = await _db.QueryAsync<DashboardResumenDto>(sql);
+            return Ok(datos);
+        }
+
     }
 }

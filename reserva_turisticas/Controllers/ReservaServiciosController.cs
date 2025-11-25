@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using reserva_turisticas.Data;
 using reserva_turisticas.Models;
+using reserva_turisticas.Dtos;
+using System.Data;
+using Dapper;
 
 namespace reserva_turisticas.Controllers
 {
@@ -15,10 +18,12 @@ namespace reserva_turisticas.Controllers
     public class ReservaServiciosController : ControllerBase
     {
         private readonly ReservaTuristicaContext _context;
+        private readonly IDbConnection _db;
 
-        public ReservaServiciosController(ReservaTuristicaContext context)
+        public ReservaServiciosController(ReservaTuristicaContext context, IDbConnection db)
         {
             _context = context;
+            _db = db;
         }
 
         // GET: api/ReservaServicios
@@ -118,5 +123,11 @@ namespace reserva_turisticas.Controllers
         {
             return _context.ReservaServicios.Any(e => e.ServicioId == id);
         }
+
+
+        
+
+
+
     }
 }

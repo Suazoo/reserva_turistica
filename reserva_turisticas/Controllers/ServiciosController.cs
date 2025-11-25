@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -7,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using reserva_turisticas.Data;
 using reserva_turisticas.Models;
+using reserva_turisticas.Dtos;
+using Dapper;
 
 namespace reserva_turisticas.Controllers
 {
@@ -15,10 +18,12 @@ namespace reserva_turisticas.Controllers
     public class ServiciosController : ControllerBase
     {
         private readonly ReservaTuristicaContext _context;
+        private readonly IDbConnection _db;
 
-        public ServiciosController(ReservaTuristicaContext context)
+        public ServiciosController(ReservaTuristicaContext context, IDbConnection db)
         {
             _context = context;
+            _db = db;
         }
 
         // GET: api/Servicios
@@ -104,5 +109,38 @@ namespace reserva_turisticas.Controllers
         {
             return _context.Servicios.Any(e => e.Id == id);
         }
+
+
+        // ------------------------------------------------------------
+        // 1) Vista: dbo.VW_Servicios_Gestion
+        // GET: api/Servicios/vista-gestion
+        // ------------------------------------------------------------
+        [HttpGet("vista-gestion")]
+        public async Task<ActionResult<IEnumerable<ServiciosGestionDto>>> GetVistaServiciosGestion()
+        {
+            const string sql = @"SELECT ServicioID, CodigoServicio, Nombre, Tipo, Precio, Duracion, Estado
+                                 FROM dbo.VW_Servicios_Gestion";
+
+            var datos = await _db.QueryAsync<ServiciosGestionDto>(sql);
+            return Ok(datos);
+        }
+
+        // ------------------------------------------------------------
+        // 2) Vista: dbo.VW_ServiciosMasReservados
+        // GET: api/Servicios/vista-mas-reservados
+        // ------------------------------------------------------------
+        [HttpGet("vista-mas-reservados")]
+        public async Task<ActionResult<IEnumerable<ServiciosMasReservadosDto>>> GetVistaServiciosMasReservados()
+        {
+            const string sql = @"SELECT Servicio, Tipo, TotalReservas, Ingresos
+                                 FROM dbo.VW_ServiciosMasReservados";
+
+            var datos = await _db.QueryAsync<ServiciosMasReservadosDto>(sql);
+            return Ok(datos);
+        }
+
+
+
+
     }
 }
