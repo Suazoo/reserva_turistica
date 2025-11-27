@@ -80,14 +80,26 @@ namespace reserva_turisticas.Controllers
         }
 
         // POST: api/Reservas
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Reserva>> PostReserva(Reserva reserva)
+        public async Task<ActionResult<Reserva>> PostReserva([FromBody] ReservaCrearDto dto)
         {
+            var reserva = new Reserva
+            {
+                CodigoReserva = dto.CodigoReserva,
+                FechaCreacion = dto.FechaCreacion,
+                Estado        = dto.Estado,
+                Total         = dto.Total,
+                ContratoId    = dto.ContratoId,
+                MonedaId      = dto.MonedaId,
+                ClienteId     = dto.ClienteId,
+                HotelId       = dto.HotelId,
+                Politicas     = dto.Politicas
+            };
+
             _context.Reservas.Add(reserva);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetReserva", new { id = reserva.Id }, reserva);
+            return CreatedAtAction(nameof(GetReserva), new { id = reserva.Id }, reserva);
         }
 
         // DELETE: api/Reservas/5
