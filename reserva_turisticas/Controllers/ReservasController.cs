@@ -254,7 +254,7 @@ namespace reserva_turisticas.Controllers
 
 
         // ------------------------------------------------------------
-        // 7) SP: dbo.SP_CREAR_RESERVACION
+        // 7) SP: dbo.SP_CREAR_RESERVACION (versión con parámetros simples)
         // POST: api/Reservas/crear-reservacion
         // ------------------------------------------------------------
         [HttpPost("crear-reservacion")]
@@ -266,21 +266,12 @@ namespace reserva_turisticas.Controllers
             parametros.Add("@pnTourID",     dto.TourID);
             parametros.Add("@pnHotelID",    dto.HotelID);
             parametros.Add("@pnPaqueteID",  dto.PaqueteID);
-            parametros.Add("@pFechaReserva",dto.FechaReserva.Date);
-            parametros.Add("@pNotas",       dto.Notas);
+            parametros.Add("@pFechaReserva", dto.FechaReserva.Date);
 
-            // Outputs
             parametros.Add("@pcNombreCliente", dbType: DbType.String, size: 200, direction: ParameterDirection.Output);
-            parametros.Add("@pnPrecioServicio", dbType: DbType.Decimal, direction: ParameterDirection.Output);
-            parametros.Add("@pnPrecioTour",     dbType: DbType.Decimal, direction: ParameterDirection.Output);
-            parametros.Add("@pnPrecioHotel",    dbType: DbType.Decimal, direction: ParameterDirection.Output);
-            parametros.Add("@pnPrecioPaquete",  dbType: DbType.Decimal, direction: ParameterDirection.Output);
-            parametros.Add("@pnSubtotal",       dbType: DbType.Decimal, direction: ParameterDirection.Output);
-            parametros.Add("@pnImpuesto",       dbType: DbType.Decimal, direction: ParameterDirection.Output);
-            parametros.Add("@pnTotal",          dbType: DbType.Decimal, direction: ParameterDirection.Output);
-            parametros.Add("@pnReservaID",      dbType: DbType.Int32,   direction: ParameterDirection.Output);
-            parametros.Add("@pnTipoMensaje",    dbType: DbType.Int32,   direction: ParameterDirection.Output);
-            parametros.Add("@pcMensaje",        dbType: DbType.String, size: 500, direction: ParameterDirection.Output);
+            parametros.Add("@pnReservaID",     dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parametros.Add("@pnTipoMensaje",   dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parametros.Add("@pcMensaje",       dbType: DbType.String, size: 500, direction: ParameterDirection.Output);
 
             await _db.ExecuteAsync(
                 "dbo.SP_CREAR_RESERVACION",
@@ -288,27 +279,29 @@ namespace reserva_turisticas.Controllers
                 commandType: CommandType.StoredProcedure
             );
 
-            var resultado = new CrearReservacionResultadoDto
-            {
-                NombreCliente  = parametros.Get<string>("@pcNombreCliente") ?? string.Empty,
-                PrecioServicio = parametros.Get<decimal?>("@pnPrecioServicio") ?? 0,
-                PrecioTour     = parametros.Get<decimal?>("@pnPrecioTour") ?? 0,
-                PrecioHotel    = parametros.Get<decimal?>("@pnPrecioHotel") ?? 0,
-                PrecioPaquete  = parametros.Get<decimal?>("@pnPrecioPaquete") ?? 0,
-                Subtotal       = parametros.Get<decimal?>("@pnSubtotal") ?? 0,
-                Impuesto       = parametros.Get<decimal?>("@pnImpuesto") ?? 0,
-                Total          = parametros.Get<decimal?>("@pnTotal") ?? 0,
-                ReservaID      = parametros.Get<int>("@pnReservaID"),
-                TipoMensaje    = parametros.Get<int>("@pnTipoMensaje"),
-                Mensaje        = parametros.Get<string>("@pcMensaje") ?? string.Empty
-            };
+            var tipoMensaje   = parametros.Get<int>("@pnTipoMensaje");
+            var mensaje       = parametros.Get<string>("@pcMensaje") ?? string.Empty;
+            var reservaId     = parametros.Get<int>("@pnReservaID");
+            var nombreCliente = parametros.Get<string>("@pcNombreCliente") ?? string.Empty;
 
-            if (resultado.TipoMensaje != 0)
+            if (tipoMensaje != 0)
             {
-                return BadRequest(resultado);
+                return BadRequest(new
+                {
+                    tipoMensaje,
+                    mensaje,
+                    reservaId,
+                    nombreCliente
+                });
             }
 
-            return Ok(resultado);
+            return Ok(new
+            {
+                tipoMensaje,
+                mensaje,
+                reservaId,
+                nombreCliente
+            });
         }
 
 

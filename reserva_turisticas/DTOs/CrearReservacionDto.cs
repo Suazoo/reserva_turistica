@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace reserva_turisticas.Dtos
 {
     public class CrearReservacionDto
@@ -8,6 +11,5 @@ namespace reserva_turisticas.Dtos
         public int HotelID { get; set; }
         public int PaqueteID { get; set; }
         public DateTime FechaReserva { get; set; }
-        public string Notas { get; set; } = string.Empty;
     }
 }
