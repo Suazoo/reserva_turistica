@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using reserva_turisticas.Data;
 using reserva_turisticas.Models;
+using reserva_turisticas.Dtos;   
+using System.Data;
+using Dapper;
 
 namespace reserva_turisticas.Controllers
 {
@@ -15,10 +17,12 @@ namespace reserva_turisticas.Controllers
     public class ClientesController : ControllerBase
     {
         private readonly ReservaTuristicaContext _context;
+        private readonly IDbConnection _db;   // igual que en ReservasController
 
-        public ClientesController(ReservaTuristicaContext context)
+        public ClientesController(ReservaTuristicaContext context, IDbConnection db)
         {
             _context = context;
+            _db = db;
         }
 
         // GET: api/Clientes
@@ -104,5 +108,55 @@ namespace reserva_turisticas.Controllers
         {
             return _context.Clientes.Any(e => e.Id == id);
         }
+
+        // ------------------------------------------------------------
+        // 1) Vista: dbo.VW_Clientes_Detalle
+        // GET: api/Clientes/vista-detalle
+        // ------------------------------------------------------------
+        [HttpGet("vista-detalle")]
+        public async Task<ActionResult<IEnumerable<ClienteDetalleDto>>> GetVistaClientesDetalle()
+        {
+            const string sql = @"SELECT ClienteID,
+                                        Codigo_cliente,
+                                        Fecha_registro,
+                                        DNI,
+                                        Primer_nombre,
+                                        Segundo_nombre,
+                                        Primer_apellido,
+                                        Segundo_apellido,
+                                        Correo_electronico,
+                                        Direccion,
+                                        Categoria,
+                                        Prioridad
+                                 FROM dbo.VW_Clientes_Detalle";
+
+            var datos = await _db.QueryAsync<ClienteDetalleDto>(sql);
+            return Ok(datos);
+        }
+
+        // ------------------------------------------------------------
+        // 2) Vista: dbo.VW_Clientes_Gestion
+        // GET: api/Clientes/vista-gestion
+        // ------------------------------------------------------------
+        [HttpGet("vista-gestion")]
+        public async Task<ActionResult<IEnumerable<ClienteGestionDto>>> GetVistaClientesGestion()
+        {
+            const string sql = @"SELECT ClienteID,
+                                        CodigoCliente,
+                                        NombreCompleto,
+                                        Email,
+                                        Telefono,
+                                        Fecha_registro,
+                                        Categoria,
+                                        Prioridad,
+                                        CategoriaCliente_id,
+                                        Estado
+                                 FROM dbo.VW_Clientes_Gestion";
+
+            var datos = await _db.QueryAsync<ClienteGestionDto>(sql);
+            return Ok(datos);
+        }
+
+        
     }
 }

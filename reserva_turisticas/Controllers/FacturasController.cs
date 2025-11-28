@@ -216,6 +216,29 @@ namespace reserva_turisticas.Controllers
             return Ok(datos);
         }
 
-        
+         // ------------------------------------------------------------
+        // VISTA: dbo.VW_Facturas_Resumen
+        // GET: api/Facturas/vista-resumen
+        // ------------------------------------------------------------
+        [HttpGet("vista-resumen")]
+        public async Task<ActionResult<IEnumerable<FacturaResumenDto>>> GetVistaFacturasResumen()
+        {
+            const string sql = @"
+                SELECT FacturaID      = FacturaID,
+                       CodigoFactura,
+                       Cliente,
+                       ReservaID,
+                       CodigoReserva,
+                       Fecha_Emision = Fecha_Emision,
+                       TotalFactura,
+                       Estado,
+                       Anio,
+                       Mes,
+                       MesNombre
+                FROM dbo.VW_Facturas_Resumen";
+
+            var datos = await _db.QueryAsync<FacturaResumenDto>(sql);
+            return Ok(datos);
+        }
     }
 }
