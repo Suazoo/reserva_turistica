@@ -21,6 +21,9 @@ public partial class Paquete
 
     public decimal? PrecioTotal { get; set; }
 
+    // dentro de la clase Paquete
+    
+
     public virtual ICollection<PaqueteTour> PaqueteTours { get; set; } = new List<PaqueteTour>();
 
     public virtual ICollection<Guium> Guia { get; set; } = new List<Guium>();

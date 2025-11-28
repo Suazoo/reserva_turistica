@@ -85,6 +85,7 @@ namespace reserva_turisticas.Controllers
         {
             var reserva = new Reserva
             {
+                
                 CodigoReserva = dto.CodigoReserva,
                 FechaCreacion = dto.FechaCreacion,
                 Estado        = dto.Estado,

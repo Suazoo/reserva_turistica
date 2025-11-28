@@ -73,6 +73,8 @@ public partial class ReservaTuristicaContext : DbContext
     public virtual DbSet<Transaccion> Transaccions { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
+    
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer("Name=ConnectionStrings:DefaultConnection");
@@ -806,6 +808,9 @@ public partial class ReservaTuristicaContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Usuario_Persona");
         });
+
+        
+
 
         OnModelCreatingPartial(modelBuilder);
     }

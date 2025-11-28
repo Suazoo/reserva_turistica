@@ -4,6 +4,7 @@ namespace reserva_turisticas.Dtos
 {
     public class ReservaCrearDto
     {
+        
         public int? CodigoReserva { get; set; }
         public DateTime? FechaCreacion { get; set; }
         public string? Estado { get; set; }

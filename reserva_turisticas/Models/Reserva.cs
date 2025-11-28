@@ -42,4 +42,7 @@ public partial class Reserva
     public virtual ICollection<ReservaTour> ReservaTours { get; set; } = new List<ReservaTour>();
     [JsonIgnore]
     public virtual ICollection<Paquete> Paquetes { get; set; } = new List<Paquete>();
+
+    
+    
 }
