@@ -270,23 +270,29 @@ namespace reserva_turisticas.Controllers
         // 7) SP: dbo.SP_CREAR_RESERVACION (versión con parámetros simples)
         // POST: api/Reservas/crear-reservacion
         // ------------------------------------------------------------
+        // ------------------------------------------------------------
+        
         [HttpPost("crear-reservacion")]
         public async Task<IActionResult> CrearReservacion([FromBody] CrearReservacionDto dto)
         {
             var parametros = new DynamicParameters();
-            parametros.Add("@pnClienteID",  dto.ClienteID);
-            parametros.Add("@pnServicioID", dto.ServicioID);
-            parametros.Add("@pnTourID",     dto.TourID);
-            parametros.Add("@pnHotelID",    dto.HotelID);
-            parametros.Add("@pnPaqueteID",  dto.PaqueteID);
-            parametros.Add("@pFechaReserva", dto.FechaReserva.Date);
-            parametros.Add("@pnTotal",      dto.pnTotal);
-            
 
+            // ENTRADAS
+            parametros.Add("@pnClienteID", dto.ClienteID);
+            parametros.Add("@pnServicioID", dto.ServicioID);
+            parametros.Add("@pnTourID", dto.TourID);
+            parametros.Add("@pnHotelID", dto.HotelID);
+            parametros.Add("@pnPaqueteID", dto.PaqueteID);
+            parametros.Add("@pFechaReserva", dto.FechaReserva.Date);
+
+            // 🔥 ESTA LÍNEA ES LA CORRECTA PARA TU SP
+            parametros.Add("@pnTotal", dto.pnTotal, dbType: DbType.Decimal, direction: ParameterDirection.Input);
+
+            // SALIDAS
             parametros.Add("@pcNombreCliente", dbType: DbType.String, size: 200, direction: ParameterDirection.Output);
-            parametros.Add("@pnReservaID",     dbType: DbType.Int32, direction: ParameterDirection.Output);
-            parametros.Add("@pnTipoMensaje",   dbType: DbType.Int32, direction: ParameterDirection.Output);
-            parametros.Add("@pcMensaje",       dbType: DbType.String, size: 500, direction: ParameterDirection.Output);
+            parametros.Add("@pnReservaID", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parametros.Add("@pnTipoMensaje", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parametros.Add("@pcMensaje", dbType: DbType.String, size: 500, direction: ParameterDirection.Output);
 
             await _db.ExecuteAsync(
                 "dbo.SP_CREAR_RESERVACION",
@@ -294,28 +300,18 @@ namespace reserva_turisticas.Controllers
                 commandType: CommandType.StoredProcedure
             );
 
-            var tipoMensaje   = parametros.Get<int>("@pnTipoMensaje");
-            var mensaje       = parametros.Get<string>("@pcMensaje") ?? string.Empty;
-            var reservaId     = parametros.Get<int>("@pnReservaID");
+            var tipoMensaje = parametros.Get<int>("@pnTipoMensaje");
+            var mensaje = parametros.Get<string>("@pcMensaje") ?? string.Empty;
+            var reservaID = parametros.Get<int>("@pnReservaID");
             var nombreCliente = parametros.Get<string>("@pcNombreCliente") ?? string.Empty;
-
-            if (tipoMensaje != 0)
-            {
-                return BadRequest(new
-                {
-                    tipoMensaje,
-                    mensaje,
-                    reservaId,
-                    nombreCliente
-                });
-            }
 
             return Ok(new
             {
                 tipoMensaje,
                 mensaje,
-                reservaId,
-                nombreCliente
+                reservaID,
+                nombreCliente,
+                total = dto.pnTotal
             });
         }
 
