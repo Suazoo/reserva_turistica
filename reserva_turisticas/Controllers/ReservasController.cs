@@ -280,6 +280,8 @@ namespace reserva_turisticas.Controllers
             parametros.Add("@pnHotelID",    dto.HotelID);
             parametros.Add("@pnPaqueteID",  dto.PaqueteID);
             parametros.Add("@pFechaReserva", dto.FechaReserva.Date);
+            parametros.Add("@pnTotal",      dto.pnTotal);
+            
 
             parametros.Add("@pcNombreCliente", dbType: DbType.String, size: 200, direction: ParameterDirection.Output);
             parametros.Add("@pnReservaID",     dbType: DbType.Int32, direction: ParameterDirection.Output);

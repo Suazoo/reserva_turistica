@@ -11,5 +11,7 @@ namespace reserva_turisticas.Dtos
         public int HotelID { get; set; }
         public int PaqueteID { get; set; }
         public DateTime FechaReserva { get; set; }
+        public decimal pnTotal { get; set; }
+        public int reservaID { get; set; }
     }
 }
