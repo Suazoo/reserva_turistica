@@ -86,7 +86,6 @@ namespace reserva_turisticas.Controllers
         [HttpPost("login-google")]
         public async Task<IActionResult> LoginGoogle([FromBody] GoogleLoginRequest googleDto)
         {
-            // Validar ModelState
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -94,8 +93,8 @@ namespace reserva_turisticas.Controllers
                 googleDto.IdToken,
                 googleDto.Email,
                 googleDto.Name,
-                googleDto.GivenName,
-                googleDto.FamilyName
+                null,
+                null
             );
 
             if (!success)

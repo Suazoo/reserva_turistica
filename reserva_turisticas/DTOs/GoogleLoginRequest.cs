@@ -14,8 +14,6 @@ namespace reserva_turisticas.DTOs
         [Required(ErrorMessage = "El nombre es obligatorio")]
         public string Name { get; set; }
 
-        // Campos opcionales que Google puede proveer
-        public string GivenName { get; set; }  
-        public string FamilyName { get; set; } 
+        
     }
 }
