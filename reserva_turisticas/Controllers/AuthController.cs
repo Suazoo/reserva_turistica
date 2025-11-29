@@ -80,7 +80,29 @@ namespace reserva_turisticas.Controllers
         }
 
         /// <summary>
+        /// LOGIN CON GOOGLE - Inicia sesión o registra con Google
+        /// POST /api/auth/login-google
+        /// </summary>
+        [HttpPost("login-google")]
+        public async Task<IActionResult> LoginGoogle([FromBody] GoogleLoginRequest googleDto)
+        {
+            // Validar ModelState
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
+            var (success, message, token) = await _authService.LoginGoogle(
+                googleDto.IdToken,
+                googleDto.Email,
+                googleDto.Name,
+                googleDto.GivenName,
+                googleDto.FamilyName
+            );
+
+            if (!success)
+                return Unauthorized(new { message });
+
+            return Ok(new { message, token });
+        }
 
         /// <summary>
         /// VERIFICAR SI UN CORREO EXISTE
