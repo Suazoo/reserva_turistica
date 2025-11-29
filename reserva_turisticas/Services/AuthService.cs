@@ -132,58 +132,74 @@ namespace reserva_turisticas.Services
         {
             try
             {
-                // 1. VALIDAR EL ID TOKEN DE GOOGLE
+                // 1. Validar el ID Token de Google
                 var payload = await ValidarGoogleToken(idToken);
-                if (payload == null || payload.Email != email)
+                if (payload == null)
                     return (false, "Token de Google inválido", null);
 
-                // 2. Buscar usuario existente
+                // Asegurar que el correo venga del payload si el frontend no lo manda
+                email ??= payload.Email;
+                if (string.IsNullOrEmpty(email))
+                    return (false, "No se pudo obtener el correo desde Google", null);
+
+                // 2. Buscar usuario existente por correo (en Persona.CorreoElectronico)
                 var usuario = _context.Usuarios
                     .Include(u => u.Persona)
                     .FirstOrDefault(u => u.Persona.CorreoElectronico == email);
 
-                // 3. Si no existe, crear usuario nuevo
+                // 3. Si no existe, crear Persona y Usuario
                 if (usuario == null)
                 {
-                    // Separar nombre completo de Google
-                    string primerNombre = !string.IsNullOrEmpty(givenName) ? givenName : name.Split(' ')[0];
-                    string primerApellido = !string.IsNullOrEmpty(familyName) ? familyName :
-                        (name.Split(' ').Length > 1 ? name.Split(' ')[1] : "");
+                    // Nombre y apellidos
+                    givenName  ??= payload.GivenName ?? name?.Split(' ').FirstOrDefault();
+                    familyName ??= payload.FamilyName ??
+                                   (name?.Split(' ').Length > 1 ? name.Split(' ')[1] : "");
 
                     var persona = new Persona
                     {
                         CorreoElectronico = email,
-                        PrimerNombre = primerNombre,
-                        PrimerApellido = primerApellido,
-                        Dni = null // Google no provee DNI, se puede completar después
+                        PrimerNombre      = givenName ?? "",
+                        PrimerApellido    = familyName ?? "",
+                        // Estos campos pueden completarse después:
+                        SegundoNombre     = null,
+                        SegundoApellido   = null,
+                        Direccion         = null,
+                        Dni               = null
                     };
+
                     _context.Personas.Add(persona);
                     _context.SaveChanges();
 
+                    string nombreCompleto = name;
+                    if (string.IsNullOrWhiteSpace(nombreCompleto))
+                        nombreCompleto = $"{persona.PrimerNombre} {persona.PrimerApellido}".Trim();
+
                     usuario = new Usuario
                     {
-                        Nombre = name,
-                        Contrasena = null, // Google no usa contraseña
-                        Estado = "A",
-                        PersonaId = persona.Id,
-                        Persona = persona
+                        Nombre      = nombreCompleto,
+                        Contrasena  = null,   // solo login con Google
+                        Estado      = "A",
+                        PersonaId   = persona.Id,
+                        Persona     = persona
                     };
+
                     _context.Usuarios.Add(usuario);
                     _context.SaveChanges();
                 }
                 else
                 {
-                    // Validar que el usuario esté activo
+                    // Usuario ya existe: validar que esté activo
                     if (usuario.Estado != "A")
                         return (false, "Usuario inactivo", null);
                 }
 
+                // 4. Generar el mismo JWT que en login normal
                 var token = GenerarToken(usuario);
                 return (true, "Login con Google exitoso", token);
             }
             catch (Exception ex)
             {
-                return (false, $"Error: {ex.Message}", null);
+                return (false, $"Error interno en login con Google: {ex.Message}", null);
             }
         }
 
