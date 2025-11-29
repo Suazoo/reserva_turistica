@@ -94,14 +94,11 @@ if (app.Environment.IsDevelopment() || Environment.GetEnvironmentVariable("RENDE
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseCors("AllowFrontend");
-}
-else
-{
-    app.UseCors("AllowFrontend");
 }
 
-// --- IMPORTANTE: NO uses HTTPS Redirection en Render ---
+// IMPORTANTE: CORS SIEMPRE Y ANTES DE AUTH
+app.UseCors("AllowFrontend");
+
 // app.UseHttpsRedirection();
 
 app.UseAuthentication();
