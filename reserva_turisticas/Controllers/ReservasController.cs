@@ -267,7 +267,7 @@ namespace reserva_turisticas.Controllers
 
 
         // ------------------------------------------------------------
-        // 7) SP: dbo.SP_CREAR_RESERVACION (versión con parámetros simples)
+        // 7) SP: dbo.SP_CREAR_RESERVACION 
         // POST: api/Reservas/crear-reservacion
         // ------------------------------------------------------------
         // ------------------------------------------------------------
@@ -285,7 +285,7 @@ namespace reserva_turisticas.Controllers
             parametros.Add("@pnPaqueteID", dto.PaqueteID);
             parametros.Add("@pFechaReserva", dto.FechaReserva.Date);
 
-            // 🔥 ESTA LÍNEA ES LA CORRECTA PARA TU SP
+            
             parametros.Add("@pnTotal", dto.pnTotal, dbType: DbType.Decimal, direction: ParameterDirection.Input);
 
             // SALIDAS
