@@ -53,51 +53,37 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// CORS - CONFIGURACIÓN MEJORADA PARA VITE + REACT
+// CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
-    {
-        // Orígenes permitidos
-        var allowedOrigins = builder.Configuration
-            .GetSection("AllowedOrigins")
-            .Get<string[]>()
-            ?? new[] { "http://localhost:5173", "http://localhost:3000", "https://varqueros-travel.vercel.app" };
-
-        policy.WithOrigins(allowedOrigins)
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials() // IMPORTANTE: Para enviar cookies/tokens
-              .SetIsOriginAllowedToAllowWildcardSubdomains(); // Para subdominios
-    });
-
-    // Política más permisiva solo para desarrollo
+    // Política súper abierta SOLO para probar
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
 var app = builder.Build();
 
-// --- PUERTO DINÁMICO PARA RENDER ---
+// Puerto dinámico Render
 var port = Environment.GetEnvironmentVariable("PORT");
 if (!string.IsNullOrEmpty(port))
 {
     app.Urls.Add($"http://*:{port}");
 }
 
-// --- SWAGGER EN RENDER & DEV ---
+// Swagger (dev + Render)
 if (app.Environment.IsDevelopment() || Environment.GetEnvironmentVariable("RENDER") == "true")
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// IMPORTANTE: CORS SIEMPRE Y ANTES DE AUTH
-app.UseCors("AllowFrontend");
+// **CORS SIEMPRE, ANTES DE AUTH**
+app.UseCors("AllowAll");
 
 // app.UseHttpsRedirection();
 
