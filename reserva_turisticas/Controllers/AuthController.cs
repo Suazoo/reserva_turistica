@@ -80,28 +80,46 @@ namespace reserva_turisticas.Controllers
         }
 
         /// <summary>
+        /// <summary>
         /// LOGIN CON GOOGLE - Inicia sesión o registra con Google
         /// POST /api/auth/login-google
         /// </summary>
         [HttpPost("login-google")]
         public async Task<IActionResult> LoginGoogle([FromBody] GoogleLoginRequest googleDto)
         {
-            // Validar ModelState
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var (success, message, token) = await _authService.LoginGoogle(
-                googleDto.IdToken,
-                googleDto.Email,
-                googleDto.Name,
-                googleDto.GivenName,
-                googleDto.FamilyName
-            );
+            try
+            {
+                var (success, message, token) = await _authService.LoginGoogle(
+                    googleDto.IdToken,
+                    googleDto.Email,
+                    googleDto.Name,
+                    googleDto.GivenName,
+                    googleDto.FamilyName
+                );
 
-            if (!success)
-                return Unauthorized(new { message });
+                if (!success)
+                {
+                    // Aquí devuelves 401 si el token es inválido o usuario no autorizado
+                    return Unauthorized(new { message });
+                }
 
-            return Ok(new { message, token });
+                // Todo bien
+                return Ok(new { message, token });
+            }
+            catch (Exception ex)
+            {
+                // LOG real en producción (Serilog, ILogger, etc.)
+                Console.WriteLine($"Error en LoginGoogle: {ex.Message}");
+
+                // Respuesta controlada para el frontend
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    message = "Ocurrió un error interno al procesar el inicio de sesión con Google."
+                });
+            }
         }
 
         /// <summary>
